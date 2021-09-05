@@ -105,3 +105,6 @@ dist
 
 # package-lock.json
 package-lock.json
+
+# apis
+spoonn_apikeys.txt

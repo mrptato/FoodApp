@@ -1,7 +1,7 @@
 require('dotenv').config();
 const axios = require('axios');
 const { Router } = require('express');
-const { Diet_type } = require('../db');
+const { Recipe, Diet_type } = require('../db');
 // Importar todos los routers;
 // Ejemplo: const authRouter = require('./auth.js');
 
@@ -12,41 +12,67 @@ const router = Router();
 // Ejemplo: router.use('/auth', authRouter);
 const API_KEY = 'd7e80da397784de19c03f6802eb1a9c7'
 const API_EP = 'https://api.spoonacular.com/recipes/';
-const NUMBER = 2;
+const NUMBER = 3;
 
-async function getRecipe(name) {
+async function getRecipeAPI() {
     try {
-        let query = `${API_EP}complexSearch?apiKey=${API_KEY}&query=${name}&number=${NUMBER}`;
-        // query += '&addRecipeInformation=true';
+        // let query = `${API_EP}complexSearch?apiKey=${API_KEY}&query=${name}&number=${NUMBER}`;
+        let query = `${API_EP}complexSearch?apiKey=${API_KEY}&number=${NUMBER}`;
+        query += '&addRecipeInformation=true';
         const response = await axios.get(query);
-        return response;
+        let resultados_ext = response.data.results;
+        const objeto = resultados_ext.map((elem) => {
+            let { id, image, title, dishTypes, diets, summary, spoonacularScore, healthScore } = elem;
+            let steps = [];
+            if (elem.analyzedInstructions[0]) {
+                let { analyzedInstructions: [{ steps: [...completeSteps] }] } = elem;
+                for (let step of completeSteps) {
+                    steps.push(step.number + ' - ' + step.step);
+                }
+            } else {
+                steps = ['No existen pasos para esta receta.']
+            }
+            return { id, image, title, dishTypes, diets, summary, spoonacularScore, healthScore, steps }
+        })
+        return objeto;
     } catch (err) {
         console.log('ERROR CON EL AXIOS: ', err);
     }
 }
 
+async function getRecipeDB() {
+    let recetas = await Recipe.findAll({
+        include: {
+            model: Diet_type,
+            attributes: ['name'],
+            through: { attributes: [] }
+        }
+    });
+
+    return recetas;
+}
+
+async function getAll() {
+    const dataAPI = await getRecipeAPI();
+    const dataDB = await getRecipeDB();
+    return [...dataAPI, ...dataDB];
+}
+
 router.get('/:input', async function (req, res) {
-    let response = {};
     let input = req.params.input;
-    // if (!req.query.name) {
-    //     console.log('------------------ tiene que salir')
-    //     res
-    //         .send('Input:', input)
-    //         .status(404)
-    // }
+    console.log('Input:', input);
     switch (input) {
         case ('recipes'):
             try {
-                response = await getRecipe(req.query.name);
-                let resultados = response.data.results;
-                if (resultados.length > 0) {
-                    res
-                        .json(resultados)
-                        .status(200);
-                } else {
-                    console.log('No se encontraron recetas.');
-                    res.status(404).send('No se encontraron recetas.')
-                }
+                const response = await getAll();
+
+                res
+                    .json(response)
+                    .status(200);
+                // } else {
+                //     console.log('No se encontraron recetas.');
+                //     res.status(404).send('No se encontraron recetas.')
+                // }
             } catch (err) {
                 console.log('entro al catch, err: ', err);
                 res
@@ -55,10 +81,7 @@ router.get('/:input', async function (req, res) {
             }
             break;
         case ('types'):
-
-            console.log('entre a types');
             const dietas = await Diet_type.findAll()
-
             res.status(200).send(dietas)
             break;
         default:
@@ -67,34 +90,43 @@ router.get('/:input', async function (req, res) {
     }
 })
 
-
-async function getRecipeById(id) {
+router.post('/recipe', async function (req, res) {
     try {
-        let query = `${API_EP}${id}/information?apiKey=${API_KEY}`;
-        // query += '&addRecipeInformation=true';
-        console.log('query: ', query);
-        const response = await axios.get(query);
-        return response;
-    } catch (err) {
-        console.log('ERROR CON EL AXIOS: ', err);
-    }
-}
+        const { name, summary, score, healthy, steps, idDietType } = req.body;
+        console.log('-----------------idDietType:', idDietType)
+        const recipe = await Recipe.create({
+            name,
+            summary,
+            score,
+            healthy,
+            steps,
+            idDietType, // [5,6,7]
+        })
 
+        await recipe.setDiet_types(idDietType);
+        // await 
+        res
+            .send(req.body)
+            .status(200)
+    } catch (err) {
+        console.log(err)
+        res
+            .status(404)
+            .send(err)
+    }
+})
 
 router.get('/recipes/:id', async function (req, res) {
-    let rec_id = req.params.id;
+    let rec_id = req.params.id.length > 6 ? req.params.id : parseInt(req.params.id);
+    console.log('entre en recipes:id, con rec_id:', rec_id);
     if (rec_id) {
         try {
-            response = await getRecipeById(rec_id);
-            let resultados = response.data;
-            // Desestructuro los datos necesarios para el detalle
-            let { image, title, dishTypes, diets, summary, spoonacularScore, healthScore } = resultados;
-            let { analyzedInstructions: [{ steps: [...completeSteps] }] } = resultados;
-            let steps = [];
-            for (let step of completeSteps) {
-                steps.push(step.number + ' - ' + step.step);
-            }
-            res.send(image + '<br>' + title + '<br>' + dishTypes + '<br>' + diets + '<br>' + summary + '<br>' + spoonacularScore + '<br>' + healthScore + '<br>' + steps)
+            response = await getAll();
+            let datos = response.find((elem) => {
+                return (elem.id === rec_id);
+            })
+
+            res.send(datos)
                 .status(200)
         } catch (err) {
             console.error(err)
@@ -103,20 +135,8 @@ router.get('/recipes/:id', async function (req, res) {
     }
 })
 
-
-
 module.exports = router;
 
-/* datos a extraer en detalle receta:
-- imagen: image
-- nombre: title
-- tipo de plato: dishTypes
-- tipo de dieta: diets
-- resumen de plato: summary
-- puntuacion: spoonacularScore
-- nivel de comida saludable: healthScore
-- pasos: analyzedInstructions.0.steps
-*/
 
 
 // https://api.spoonacular.com/recipes/complexSearch

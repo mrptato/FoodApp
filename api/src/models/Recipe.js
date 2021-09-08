@@ -10,10 +10,10 @@ module.exports = (sequelize) => {
   sequelize.define('recipe', {
     id: { type: DataTypes.UUID, primaryKey: true, allowNull: false, defaultValue: DataTypes.UUIDV4 },
     name: { type: DataTypes.STRING, allowNull: false },
-    summary: { type: DataTypes.STRING, allowNull: false },
-    score: { type: DataTypes.INTEGER, allowNull: false },
-    healthy: { type: DataTypes.INTEGER, allowNull: false },
-    steps: { type: DataTypes.STRING, allowNull: false },
+    summary: { type: DataTypes.STRING, allowNull: true },
+    score: { type: DataTypes.INTEGER, allowNull: true },
+    healthy: { type: DataTypes.INTEGER, allowNull: true },
+    steps: { type: DataTypes.STRING, allowNull: true },
     own: { type: DataTypes.BOOLEAN, defaultValue: true }
   }),
 

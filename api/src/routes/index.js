@@ -12,13 +12,13 @@ const router = Router();
 // Ejemplo: router.use('/auth', authRouter);
 const API_KEY = 'd7e80da397784de19c03f6802eb1a9c7'
 const API_EP = 'https://api.spoonacular.com/recipes/';
-const NUMBER = 3;
+const NUMBER = 10;
+// https://api.spoonacular.com/recipes/complexSearch
+let query = `${API_EP}complexSearch?apiKey=${API_KEY}&number=${NUMBER}`;
+query += '&addRecipeInformation=true';
 
 async function getRecipeAPI() {
     try {
-        // let query = `${API_EP}complexSearch?apiKey=${API_KEY}&query=${name}&number=${NUMBER}`;
-        let query = `${API_EP}complexSearch?apiKey=${API_KEY}&number=${NUMBER}`;
-        query += '&addRecipeInformation=true';
         const response = await axios.get(query);
         let resultados_ext = response.data.results;
         const objeto = resultados_ext.map((elem) => {
@@ -65,14 +65,9 @@ router.get('/:input', async function (req, res) {
         case ('recipes'):
             try {
                 const response = await getAll();
-
                 res
                     .json(response)
                     .status(200);
-                // } else {
-                //     console.log('No se encontraron recetas.');
-                //     res.status(404).send('No se encontraron recetas.')
-                // }
             } catch (err) {
                 console.log('entro al catch, err: ', err);
                 res
@@ -122,9 +117,7 @@ router.get('/recipes/:id', async function (req, res) {
     if (rec_id) {
         try {
             response = await getAll();
-            let datos = response.find((elem) => {
-                return (elem.id === rec_id);
-            })
+            let datos = response.find((elem) => (elem.id === rec_id))
 
             res.send(datos)
                 .status(200)

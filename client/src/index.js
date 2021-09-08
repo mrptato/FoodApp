@@ -1,11 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Route } from 'react-router-dom';
+import './normalize.css';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
+    <Router exact path='/' component={} />
+    <Router path='/recipedetail' component={} />
+    <Router exact path='/newrecipe' component={} />
     <App />
   </React.StrictMode>,
   document.getElementById('root')

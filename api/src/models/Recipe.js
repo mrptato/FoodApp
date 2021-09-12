@@ -15,7 +15,10 @@ module.exports = (sequelize) => {
     healthy: { type: DataTypes.INTEGER, allowNull: true },
     steps: { type: DataTypes.STRING, allowNull: true },
     own: { type: DataTypes.BOOLEAN, defaultValue: true }
-  }),
+  },
+    {
+      timestamps: false,
+    }),
 
     sequelize.define('diet_type', {
       name: {

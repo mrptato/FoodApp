@@ -1,18 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Route } from 'react-router-dom';
-import './normalize.css';
-import './index.css';
+import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
+import store from './store/index';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import './normalize.css';
+import './index.css';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <Router exact path='/' component={} />
-    <Router path='/recipedetail' component={} />
-    <Router exact path='/newrecipe' component={} />
-    <App />
-  </React.StrictMode>,
+  <Provider store={store}>
+    <BrowserRouter>
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    </BrowserRouter>
+  </Provider>,
   document.getElementById('root')
 );
 

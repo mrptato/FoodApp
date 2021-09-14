@@ -2,6 +2,7 @@ import * as ACTION from '../action-types/index';
 import GetAllRecipies from '../services/axiosGetAllRecipes';
 import GetAllDishTypes from '../services/axiosGetAllDishTypes';
 import GetRecipeDetail from '../services/axiosGetRecipeDetail';
+import PostRecipe from '../services/axiosPostRecipe';
 
 export function loadRecipes() {
     return {
@@ -90,9 +91,50 @@ export function fetchDishTypes() {
         dispatch(loadDishTypes());
         GetAllDishTypes()
             .then((res) => {
-                // console.log('CARGA FETCH DISHTYPES: ',res.data)
                 dispatch(loadedDishTypes(res.data));
             })
             .catch((err) => dispatch(loadDishTypesError(err.message)));
     }
 }
+
+export function addRecipe() {
+    return {
+        type: ACTION.ADDING_RECIPE,
+    }
+}
+
+export function addedRecipe(
+    { name, summary, score, healthy, steps, image, idDietType }
+) {
+    return {
+        type: ACTION.ADDED_RECIPE,
+        payload: { name, summary, score, healthy, steps, image, idDietType }
+    }
+}
+
+export function addRecipeError(err) {
+    return {
+        type: ACTION.ADD_RECIPE_ERROR,
+        payload: err,
+    }
+}
+
+export function execAddRecipe(recipe) {
+    return (dispatch) => {
+        dispatch(addRecipe());
+        PostRecipe(recipe)
+            .then((res) => {
+                dispatch(addedRecipe(res.data))
+            })
+            .catch((err) => dispatch(addRecipeError(err.message)))
+    }
+}
+
+/*name,
+    summary,
+    score,
+    healthy,
+    steps,
+    image,
+    idDietType
+    */

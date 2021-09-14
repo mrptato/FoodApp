@@ -19,6 +19,11 @@ function Recipe({
     // if string it's inner, so i split it
     steps = steps.split("%%%");
   }
+  console.log("name", name);
+  console.log("diet_types", diet_types);
+  if(diet_types){
+    diet_types = diet_types.join(', ');
+  }
 
   if (detailed) {
     return (
@@ -27,7 +32,6 @@ function Recipe({
           <a href={id}>{title ? title : name}</a>
         </h2>
         <img src={image} alt={"Image of " + name?.toUpperCase()} />
-        {/* <div>Tipo de plato: {dishTypes}</div> */}
         <div>Resumen: {summary}</div>
         <div>Dietas: {diets ? diets : diet_types}</div>
         <div>Score: {spoonacularScore ? spoonacularScore : score}</div>

@@ -8,7 +8,6 @@ import { fetchRecipeDetail } from "../actions/index";
 function RecipeDetail(props) {
   const dispatch = useDispatch();
   const idRecipe = props.match.params.recipedetail;
-  // if (idRecipe === 'newrecipe') return;
   
   useEffect(() => {
     dispatch(fetchRecipeDetail(idRecipe));

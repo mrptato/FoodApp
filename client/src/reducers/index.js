@@ -3,7 +3,9 @@ import * as ACTION from '../action-types/index';
 const initialState = {
     loading: false,
     loading_dish: false,
-    loading_detail:false,
+    loading_detail: false,
+    adding_rec: false,
+    adding_rec_suc: false,
     error: false,
     error_message: '',
     recipes: [],
@@ -57,6 +59,7 @@ function rootReducer(state = initialState, action) {
             return {
                 ...state,
                 loading_detail: false,
+
                 recipe_detail: action.payload,
             };
         case ACTION.LOADED_RECIPE_DETAIL_ERROR:
@@ -67,8 +70,27 @@ function rootReducer(state = initialState, action) {
                 error_message: action.payload,
             };
 
-        case ACTION.ADD_RECIPE:
-            return;
+        case ACTION.ADDING_RECIPE:
+            return {
+                ...state,
+                adding_rec: true,
+                error_adding: false,
+            }
+        case ACTION.ADDED_RECIPE:
+            return {
+                ...state,
+                adding_rec: false,
+                adding_rec_suc: true,
+                error_adding: false,
+                recipes: [...state.recipes, action.payload]
+            }
+        case ACTION.ADD_RECIPE_ERROR:
+            return {
+                ...state,
+                adding_rec: false,
+                error: true,
+                error_message: action.payload,
+            };
         default:
             return state;
     }

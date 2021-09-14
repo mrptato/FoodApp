@@ -11,9 +11,10 @@ const router = Router();
 
 // Configurar los routers
 // Ejemplo: router.use('/auth', authRouter);
-const API_KEY = 'fdf5ac312bfe45e08c46bf170b835291'
+const API_KEY = 'c24769cd4ead4400899a96dbe54fab92'
 const API_EP = 'https://api.spoonacular.com/recipes/';
 const NUMBER = 2;
+const PRUEBAS_LOCALES = false;  // para no buscar en la api.
 // https://api.spoonacular.com/recipes/complexSearch
 let query = `${API_EP}complexSearch?apiKey=${API_KEY}&number=${NUMBER}`;
 query += '&addRecipeInformation=true';
@@ -57,8 +58,6 @@ async function getRecipeAPI(name = undefined, idDetails = undefined) {
 
 async function getRecipeDB(name = undefined, idDetails = undefined) {
     let filtradosDB;
-    // console.log('estoy en getRecipeDB con name:',name);
-    // console.log('estoy en getRecipeDB con idDetails:',idDetails);
     let response = await Recipe.findAll({
         include: {
             model: Diet_type,
@@ -67,24 +66,36 @@ async function getRecipeDB(name = undefined, idDetails = undefined) {
         }
     });
     if (name) {
+        console.log('hay name por lo tanto filtro en getRecipeDB');
         filtradosDB = response.filter((obj) => {
             if (obj.name.toLocaleLowerCase().includes(name)) return obj;
         })
     } else filtradosDB = response;
-    console.log('response en filtradosDB:', response)
-    console.log('filtradosDB en filtradosDB:', filtradosDB)
     if (response.length === 0) return undefined;
     if (!idDetails) {
+        console.log('idDetails falso, idDetails: ', idDetails);
         const recetas = filtradosDB.map((elem) => {
             let { id, image, name, diet_types } = elem;
+            let auxDiet = [];
+            for (let diet in diet_types) {
+                auxDiet.push(diet_types[diet].name);
+            }
+            diet_types = auxDiet;
             return { id, image, name, diet_types };
         })
         return recetas;
     } else {
+        console.log('idDetails verdadero, estoy en else de getRecipeDB, idDetails: ', idDetails);
         const recetas = filtradosDB.map((elem) => {
-            let { id, image, name, diet_types, summary, score, healthy } = elem;
-            let steps = [];
-            if (!elem.steps) steps = ['No existen pasos para esta receta.']
+            let { id, image, name, diet_types, summary, score, healthy, steps } = elem;
+            let auxDiet = [];
+            for (let diet in diet_types) {
+                auxDiet.push(diet_types[diet].name);
+            }
+            diet_types = auxDiet;
+            if (steps.length === 0) {
+                steps = ['No existen pasos para esta receta.']
+            }
             return { id, image, name, diet_types, summary, score, healthy, steps }
         })
         return recetas;
@@ -92,10 +103,15 @@ async function getRecipeDB(name = undefined, idDetails = undefined) {
 }
 
 async function getAll(name, idDetails) {
-    const dataAPI = await getRecipeAPI(name, idDetails);
-    // const dataAPI = undefined;
-    const dataDB = await getRecipeDB(name, idDetails);
-    console.log('------------------ dataDB en getAll: ', dataDB)
+    let dataAPI;
+    let dataDB;
+    if (PRUEBAS_LOCALES) {
+        dataAPI = undefined;
+        dataDB = await getRecipeDB(name, idDetails);
+    } else {
+        dataAPI = await getRecipeAPI(name, idDetails);
+        dataDB = await getRecipeDB(name, idDetails);
+    }
     if (dataDB && dataAPI) {
         return [...dataAPI, ...dataDB];
     } else if (dataDB && !dataAPI) {
@@ -103,34 +119,27 @@ async function getAll(name, idDetails) {
     } else if (!dataDB && dataAPI) {
         return [...dataAPI];
     }
-    // if (dataAPI || dataAPI?.length === 0) 
     return undefined;
-    // console.log('------------- dataAPI:', dataAPI);
-    // return [...dataAPI];
 }
 
 router.get('/:input', async function (req, res) {
     let input = req.params.input;
-    console.log('Input:', input);
     switch (input) {
         case ('recipes'):
             try {
                 let response = {};
                 if (req.query.name) {
-                    console.log('estoy en recipes y en query name true')
                     response = await getAll(req.query.name.toLocaleLowerCase());
                 } else {
-                    console.log('estoy en recipes y en query name undefined')
                     response = await getAll();
                 }
                 res
                     .json(response)
                     .status(200);
             } catch (err) {
-                console.log('entro al catch, err: ', err);
                 res
-                    .send('Entró al catch. Error: ', err)
                     .status(404)
+                    .send('Entró al catch. Error: ', err)
             }
             break;
         case ('types'):
@@ -151,6 +160,7 @@ router.get('/recipes/:id', async function (req, res) {
             response = await getAll(undefined, rec_id);
             if (response) {
                 let datos = response.find((elem) => (elem.id === rec_id))
+                // cambiar steps
                 res.send(datos)
                     .status(200)
             } else {
@@ -167,10 +177,11 @@ router.get('/recipes/:id', async function (req, res) {
 
 router.post('/recipe', async function (req, res) {
     try {
-        const { name, summary, score, healthy, steps, idDietType } = req.body;
+        const { name, image, summary, score, healthy, steps, idDietType } = req.body;
         // console.log('-----------------idDietType:', idDietType)
         const recipe = await Recipe.create({
             name,
+            image,
             summary,
             score,
             healthy,
@@ -180,7 +191,7 @@ router.post('/recipe', async function (req, res) {
 
         await recipe.setDiet_types(idDietType);
         res
-            .send(req.body)
+            .send(recipe)
             .status(200)
     } catch (err) {
         console.log(err)

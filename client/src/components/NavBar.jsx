@@ -9,7 +9,7 @@ function NavBar() {
   return (
     <>
       <label>
-        <a href="http://localhost:3000/">Home</a>
+        <a href="http://localhost:3000/recipes">Home</a>
       </label>
       <span>
         <SearchBar />

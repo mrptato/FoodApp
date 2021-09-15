@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { execAddRecipe } from "../actions/index";
+import Layout from './Layout'; 
 // import { connect } from "react-redux";
 // import { NavLink } from "react-router-dom";
 
@@ -31,7 +32,7 @@ function NewRecipe() {
     score: "",
     healthy: "",
     steps: "",
-    image: "./images/default_recipe.jpg",
+    image: "/images/default_recipe.jpg",
     idDietType: [],
   });
   const [errors, setErrors] = useState({});
@@ -42,7 +43,6 @@ function NewRecipe() {
       let valor;
       let targetValue = [];
       let change = true;
-      let checked = [];
       if (e.target.type !== "checkbox") {
         targetValue = e.target.value;
         valor = e.target.name;
@@ -57,10 +57,12 @@ function NewRecipe() {
             change = true;
           }
         } else {
-          targetValue = targetValue.filter((diet) => diet !== parseInt(e.target.id));
+          targetValue = targetValue.filter(
+            (diet) => diet !== parseInt(e.target.id)
+          );
         }
       }
-      console.log(targetValue);
+      // console.log(targetValue);
       let state = {};
       if (change) {
         state = {
@@ -87,7 +89,6 @@ function NewRecipe() {
         Object.values(errors).length
       );
     } else {
-      console.log('formData:', formData);
       dispatch(execAddRecipe(formData));
       setFormData({
         name: "",
@@ -102,17 +103,17 @@ function NewRecipe() {
 
   if (addSuccess) {
     setTimeout(function () {
-      history.push("/");
-    }, 1500);
+      history.push("/recipes");
+    }, 1000);
     return (
-      <>
+      <Layout>
         <div>RECETA AGREGADA CON EXITO</div>
-      </>
+      </Layout>
     );
   }
 
   return (
-    <>
+    <Layout>
       <div>Esta la página de nueva receta</div>
       <form onSubmit={handleSubmit}>
         <FormItem
@@ -132,6 +133,7 @@ function NewRecipe() {
         <FormItem
           label="Puntaje:"
           name="score"
+          type="number"
           value={formData.score}
           handleChange={handleChange}
           error={errors.score}
@@ -139,6 +141,7 @@ function NewRecipe() {
         <FormItem
           label="Puntaje saludable:"
           name="healthy"
+          type="number"
           value={formData.healthy}
           handleChange={handleChange}
           error={errors.healthy}
@@ -147,6 +150,7 @@ function NewRecipe() {
           label="Pasos para realizarla:"
           name="steps"
           value={formData.steps}
+          type="text"
           handleChange={handleChange}
           error={errors.steps}
         />
@@ -164,7 +168,7 @@ function NewRecipe() {
 
         <input type="submit" value="Guardar" />
       </form>
-    </>
+    </Layout>
   );
 }
 
@@ -184,11 +188,11 @@ function CheckItem({ id, label, handleChange }) {
   );
 }
 
-function FormItem({ label, name, value, handleChange, error }) {
+function FormItem({ label, name, value, handleChange, error, type = "input" }) {
   return (
     <div>
       <label>{label}</label>
-      <input name={name} value={value} onChange={handleChange} />
+      <input type={type} name={name} value={value} onChange={handleChange} />
       <span>{error}</span>
     </div>
   );

@@ -104,11 +104,11 @@ export function addRecipe() {
 }
 
 export function addedRecipe(
-    { name, summary, score, healthy, steps, image, idDietType }
+    { id, name, summary, score, healthy, steps, image, idDietType }
 ) {
     return {
         type: ACTION.ADDED_RECIPE,
-        payload: { name, summary, score, healthy, steps, image, idDietType }
+        payload: { id, name, summary, score, healthy, steps, image, idDietType }
     }
 }
 
@@ -130,11 +130,23 @@ export function execAddRecipe(recipe) {
     }
 }
 
-/*name,
-    summary,
-    score,
-    healthy,
-    steps,
-    image,
-    idDietType
-    */
+export function search(value){
+    return{
+        type: ACTION.SEARCH_VALUE,
+        payload: value,
+    }
+}
+
+export function orderAZ(type_order){
+    return{
+        type: ACTION.ORDER_AZ,
+        payload: type_order
+    }
+}
+
+export function orderDish(dishOrder){
+    return {
+        type: ACTION.ORDER_DISH,
+        payload: dishOrder,
+    }
+}

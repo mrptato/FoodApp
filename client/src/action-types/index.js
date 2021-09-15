@@ -14,3 +14,9 @@ export const LOAD_DISHTYPES_ERROR = 'LOAD_DISHTYPES_ERROR';
 export const ADDING_RECIPE = 'ADDING_RECIPE';
 export const ADDED_RECIPE = 'ADDED_RECIPE';
 export const ADD_RECIPE_ERROR = 'ADD_RECIPE_ERROR';
+
+export const SEARCH_VALUE = 'SEARCH_VALUE';
+
+export const ORDER_AZ = 'ORDER_AZ';
+
+export const ORDER_DISH = 'ORDER_DISH';

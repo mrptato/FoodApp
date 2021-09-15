@@ -1,10 +1,11 @@
 // import { useState } from 'react';
 // import getAllRecipies from './services/axiosGetAllRecipes'
 import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import './App.css';
-import NavBar from './components/NavBar';
+import Home from './components/Home'
+// import NavBar from './components/NavBar';
 import Recipes from './components/Recipes';
 import RecipeDetail from './components/RecipeDetail';
 import NewRecipe from './components/NewRecipe';
@@ -17,16 +18,20 @@ function App() {
   useEffect(() => {
     dispatch(fetchRecipes())
     dispatch(fetchDishTypes())
-  }, [])
+  }, [dispatch])
 
   return (
     <div className="App">
-      <NavBar />
 
       <Switch>
         <Route
           exact
           path='/'
+          component={Home}
+        />
+        <Route
+          exact
+          path='/recipes'
           component={Recipes}
         />
         <Route

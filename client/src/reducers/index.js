@@ -11,6 +11,9 @@ const initialState = {
     recipes: [],
     recipe_detail: [],
     dishtypes: [],
+    search: '',
+    orderAz: 'desc',
+    dishOrder: '0'
 }
 
 function rootReducer(state = initialState, action) {
@@ -91,6 +94,21 @@ function rootReducer(state = initialState, action) {
                 error: true,
                 error_message: action.payload,
             };
+        case ACTION.SEARCH_VALUE:
+            return {
+                ...state,
+                search: action.payload,
+            }
+        case ACTION.ORDER_AZ:
+            return {
+                ...state,
+                orderAz: action.payload,
+            }
+        case ACTION.ORDER_DISH:
+            return {
+                ...state,
+                dishOrder: action.payload,
+            }
         default:
             return state;
     }

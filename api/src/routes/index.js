@@ -11,9 +11,9 @@ const router = Router();
 
 // Configurar los routers
 // Ejemplo: router.use('/auth', authRouter);
-const API_KEY = 'c24769cd4ead4400899a96dbe54fab92'
+const API_KEY = 'fdf5ac312bfe45e08c46bf170b835291'
 const API_EP = 'https://api.spoonacular.com/recipes/';
-const NUMBER = 2;
+const NUMBER = 100;
 const PRUEBAS_LOCALES = false;  // para no buscar en la api.
 // https://api.spoonacular.com/recipes/complexSearch
 let query = `${API_EP}complexSearch?apiKey=${API_KEY}&number=${NUMBER}`;

@@ -104,11 +104,11 @@ export function addRecipe() {
 }
 
 export function addedRecipe(
-    { id, name, summary, score, healthy, steps, image, idDietType }
+    { id, name, summary, score, healthy, price, steps, image, idDietType }
 ) {
     return {
         type: ACTION.ADDED_RECIPE,
-        payload: { id, name, summary, score, healthy, steps, image, idDietType }
+        payload: { id, name, summary, score, healthy, price, steps, image, idDietType }
     }
 }
 
@@ -148,5 +148,12 @@ export function orderDish(dishOrder){
     return {
         type: ACTION.ORDER_DISH,
         payload: dishOrder,
+    }
+}
+
+export function orderHealth(healthy){
+    return {
+        type: ACTION.ORDER_HEALTH,
+        payload: healthy,
     }
 }

@@ -1,19 +1,72 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import Recipe from "./Recipe";
 import { useSelector } from "react-redux";
 import Layout from "./Layout";
+import styled from "styled-components";
+
+const colorA = "#F5E8C7";
+const colorB = "#DEBA9D";
+const colorC = "#9E7777";
+const colorD = "#6F4C5B";
+const colorW = "#ffffff";
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+`;
+
+const BlockRecipe = styled.div`
+  background-color: ${colorA};
+  margin: 1.5rem;
+  border: 1.2rem solid;
+  border-color: ${colorC};
+  border-radius: 15px;
+  &:hover{
+    transition: all 0.2s ease-in-out;
+    border-radius: 0 solid;
+    border-color: ${colorD};
+    /* border: 2rem solid; */
+  }
+`;
+
+
+const Button = styled.a`
+  display:inline-block;
+  /* flex-direction:rows; */
+  background: ${colorD};
+  background-image: -webkit-linear-gradient(top, ${colorD}, ${colorC});
+  background-image: -moz-linear-gradient(top, ${colorD}, #9e7777);
+  background-image: -ms-linear-gradient(top, ${colorD}, #9e7777);
+  background-image: -o-linear-gradient(top, ${colorD}, #9e7777);
+  background-image: linear-gradient(to bottom, ${colorD}, #9e7777);
+  border-radius: 18px;
+  text-shadow: 1px 1px 3px #666666;
+  /* font-family: Arial; */
+  color: #f5e8c7;
+  font-size: 17px;
+  padding: 5px;
+  border: solid #deba9d 2px;
+  text-decoration: none;
+  text-align: center;
+  justify-content: center;
+
+  transition: background-color 0.3s ease-in-out;
+
+  &:hover {
+    background: ${colorA};
+    text-decoration: none;
+  }
+`;
 
 function Recipes() {
-  const [actualPage, setActualPage] = useState(0);
-  const recipesPerPage = 9;
-  const lastRecipe = actualPage * recipesPerPage;
-  const firstRecipe = lastRecipe - recipesPerPage;
-  const loading = useSelector((state) => state.loading);
   // const error = useSelector((state) => state.error);
   // const error_message = useSelector((state) => state.error_message);
+  const [actualPage, setActualPage] = useState(0);
+  const recipesPerPage = 9;
+  // const lastRecipe = actualPage * recipesPerPage;
+  // const firstRecipe = lastRecipe - recipesPerPage;
+  const loading = useSelector((state) => state.loading);
   const search = useSelector((state) => state.search);
-  console.log("search de useSelector: ", search);
   const recipes = useSelector((state) =>
     search
       ? state.recipes.filter(
@@ -39,14 +92,11 @@ function Recipes() {
             (x) => x.toLocaleLowerCase() === dishTypes.name.toLocaleLowerCase()
           )
     )
+    .sort(sortHealth)
     .sort(sortDishes);
 
-  // console.log("recetas filtradas: ", recipesFiltered.length);
   const totalPages = Math.ceil(recipesFiltered.length / recipesPerPage);
-  // console.log("Paginas Totales: ", totalPages);
-
   const recipesPaged = [];
-  // console.log('recipesPaged luego de array:', recipesPaged)
 
   for (let i = 0; i < totalPages; i++) {
     recipesPaged[i] = [];
@@ -57,14 +107,19 @@ function Recipes() {
       }
     }
   }
-  console.log("recipesPaged:", recipesPaged);
 
   function takeToPage(e, index) {
     e.preventDefault();
-    // console.log('clic, page: ',parseInt(page.target.name))
     setActualPage(parseInt(index));
   }
 
+  function sortHealth(a, b) {
+    let valA = parseInt((a.healthy || a.healthScore));
+    let valB = parseInt((b.healthy || b.healthScore));
+    if (valA > valB) return orderAz === "asc" ? 1 : -1;
+    if (valA < valB) return orderAz === "asc" ? -1 : 1;
+    return 0;
+  }
   function sortDishes(a, b) {
     let valA = (a.title || a.name).toLocaleLowerCase();
     let valB = (b.title || b.name).toLocaleLowerCase();
@@ -80,43 +135,41 @@ function Recipes() {
       </Layout>
     );
   }
-  console.log("Cantidad de recetas: ", recipes.length);
-  console.log("actualPage:", actualPage);
-  console.log("recipesPaged:", recipesPaged[actualPage]);
-  if (recipes) {
+  console.log("-------------recipesPaged", recipesPaged);
+  if (recipesPaged.length > 0) {
     return (
       <Layout>
-        <h1>Lista de recetas</h1>
-        {recipesPaged[actualPage]?.map(function (recipe) {
-          return <Recipe key={recipe.id} {...recipe} />;
-        })}
-        <hr />
-        <span>
+        <h1>Recipes</h1>
+        <div>
           {[...Array(totalPages).keys()].map((p) => {
             return (
               <>
-                <a key={p} href="#" onClick={(e) => takeToPage(e, p)}>
+                <Button key={p} href="#" onClick={(e) => takeToPage(e, p)}>
                   {p + 1}{" "}
-                </a>{" "}
+                </Button>{" "}
               </>
             );
           })}
-
-          {/* {recipesPaged.map*/}
-        </span>
+        </div>
+        <Grid>
+          {recipesPaged[actualPage]?.map(function (recipe) {
+            return (
+              <BlockRecipe>
+                <Recipe key={recipe.id} {...recipe} />
+              </BlockRecipe>
+            );
+          })}
+        </Grid>
       </Layout>
     );
   } else {
     return (
       <Layout>
         <h1>Lista de recetas</h1>
-        <div>No hay datos para mostrar</div>
+        <div>No hay recetas para mostrar</div>
       </Layout>
     );
   }
 }
-
-//inside your return
-//  <Button style={{margin: '20px'}} onClick={this.takeUserToPage}>Page + 1</Button>
 
 export default Recipes;

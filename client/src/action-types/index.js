@@ -19,4 +19,6 @@ export const SEARCH_VALUE = 'SEARCH_VALUE';
 
 export const ORDER_AZ = 'ORDER_AZ';
 
+export const ORDER_HEALTH = 'ORDER_HEALTH';
+
 export const ORDER_DISH = 'ORDER_DISH';

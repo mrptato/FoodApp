@@ -10,12 +10,12 @@ import Layout from "./Layout";
 function RecipeDetail(props) {
   const dispatch = useDispatch();
   const idRecipe = props.match.params.recipedetail;
+  const loading = useSelector((state) => state.loading_detail);
+  const recipe = useSelector((state) => state.recipe_detail);
 
   useEffect(() => {
     dispatch(fetchRecipeDetail(idRecipe));
   }, [dispatch, idRecipe]);
-  const loading = useSelector((state) => state.loading_detail);
-  const recipe = useSelector((state) => state.recipe_detail);
 
   if (loading) {
     return (

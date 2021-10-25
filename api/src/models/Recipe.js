@@ -15,6 +15,7 @@ module.exports = (sequelize) => {
     score: { type: DataTypes.INTEGER, allowNull: true },
     healthy: { type: DataTypes.INTEGER, allowNull: true },
     steps: { type: DataTypes.STRING, allowNull: true },
+    price: {type: DataTypes.INTEGER, allowNull: true},
     own: { type: DataTypes.BOOLEAN, defaultValue: true }
   },
     {

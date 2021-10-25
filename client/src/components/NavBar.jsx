@@ -16,12 +16,13 @@ const NavStyled = styled.div`
   display: flex;
   font-weight: 700;
   width:100%;
-  max-width: 1000px;
+  max-width: 70vw;
   padding: 1rem;
   font-size:1.2rem;
   align-items: space-between;
   align-self:center;
-  justify-content: space-between;
+  justify-content: center;
+  column-gap:1vw;
   /* & * {
     flex-grow: 0;
     flex-shrink: 1;
@@ -61,16 +62,13 @@ const Button = styled.a`
 function NavBar() {
   return (
     <NavStyled>
-      <Button href="http://localhost:3000/recipes">Home</Button>
-      <Button href="http://localhost:3000/newrecipe">Agregar receta</Button>
+      <Button href="/recipes">Home</Button>
+      <Button href="/newrecipe">Agregar receta</Button>
       <SpanStyled>
         <SearchBar />
       </SpanStyled>
       <SpanStyled>
         Ordenar: <Orderer />
-      </SpanStyled>
-      <SpanStyled>
-       OrderHealth: <OrdererHealth />
       </SpanStyled>
       <SpanStyled>
         Tipo de plato: <OrderDish />

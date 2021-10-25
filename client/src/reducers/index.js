@@ -12,8 +12,7 @@ const initialState = {
     recipe_detail: [],
     dishtypes: [],
     search: '',
-    orderAz: 'desc',
-    orderHealth: 'desc',
+    orderAz: 'asc',
     dishOrder: '0'
 }
 
@@ -113,7 +112,7 @@ function rootReducer(state = initialState, action) {
         case ACTION.ORDER_HEALTH:
             return{
                 ...state,
-                orderHealth: action.payload,
+                orderAz: action.payload,
             }
         default:
             return state;

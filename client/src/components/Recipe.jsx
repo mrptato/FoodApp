@@ -14,7 +14,7 @@ const colorW = "#ffffff";
 const Grid = styled.div`
   display: grid;
   grid-template-columns: 1fr;
-  font-size:1.5rem;
+  font-size:1rem;
   padding:0;
   text-decoration: none;
 `;
@@ -56,21 +56,21 @@ const DivReceta = styled.a`
   & h2 {
     display: flex;
     font-size: 1rem;
-    height: 3rem;
+    height: 1rem;
     align-items: center;
   }
   & h3 {
     display: flex;
     font-size: 1rem;
-    height: 2rem;
+    height: 1rem;
     align-items: center;
   }
 
 `;
 
 const StyledImg = styled.img`
-  width: 312;
-  height: 231;
+  width: 312px;
+  height: 231px;
 `;
 
 function Recipe({
@@ -131,6 +131,7 @@ function Recipe({
             : "Without diet type defined"}
           {diets ? diets : diet_types}
         </h3>
+        <h3>Health Points: {healthScore?healthScore:healthy}</h3>
       </DivReceta>
     );
   }

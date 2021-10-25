@@ -1,18 +1,15 @@
 require('dotenv').config();
 const axios = require('axios');
 const { Router } = require('express');
-const { ClientBase } = require('pg');
 const { Recipe, Diet_type } = require('../db');
 // Importar todos los routers;
 // Ejemplo: const authRouter = require('./auth.js');
-
 
 const router = Router();
 
 // Configurar los routers
 // Ejemplo: router.use('/auth', authRouter);
-const API_KEY = 'fdf5ac312bfe45e08c46bf170b835291'
-const API_EP = 'https://api.spoonacular.com/recipes/';
+const { API_KEY, API_EP } = process.env;
 const NUMBER = 100;
 const PRUEBAS_LOCALES = false;  // para no buscar en la api.
 // https://api.spoonacular.com/recipes/complexSearch
@@ -22,17 +19,22 @@ query += '&addRecipeInformation=true';
 async function getRecipeAPI(name = undefined, idDetails = undefined) {
     let filtradosAPI;
     try {
-        const response = await axios.get(query);
+        console.log('entro a try de axios api');
+        response = await axios.get(query);
+        console.log('query:', query);
+        // console.log(response.data.results)
         if (name) {
             filtradosAPI = response.data.results.filter((obj) => {
                 if (obj.title.toLocaleLowerCase().includes(name)) return obj;
             })
         } else filtradosAPI = response.data.results;
         if (!idDetails) {
+            console.log('entro filtrado api map')
             const recetas = filtradosAPI.map((elem) => {
-                let { id, image, title, diets } = elem;
-                return { id, image, title, diets };
+                let { id, image, title, diets, healthScore } = elem;
+                return { id, image, title, diets,healthScore };
             })
+            console.log(recetas)
             return recetas;
         } else {
             const recetas = filtradosAPI.map((elem) => {
@@ -75,19 +77,19 @@ async function getRecipeDB(name = undefined, idDetails = undefined) {
     if (!idDetails) {
         console.log('idDetails falso, idDetails: ', idDetails);
         const recetas = filtradosDB.map((elem) => {
-            let { id, image, name, diet_types } = elem;
+            let { id, image, name, price, diet_types } = elem;
             let auxDiet = [];
             for (let diet in diet_types) {
                 auxDiet.push(diet_types[diet].name);
             }
             diet_types = auxDiet;
-            return { id, image, name, diet_types };
+            return { id, image, name, price, diet_types };
         })
         return recetas;
     } else {
         console.log('idDetails verdadero, estoy en else de getRecipeDB, idDetails: ', idDetails);
         const recetas = filtradosDB.map((elem) => {
-            let { id, image, name, diet_types, summary, score, healthy, steps } = elem;
+            let { id, image, name, diet_types, summary, score, price, healthy, steps } = elem;
             let auxDiet = [];
             for (let diet in diet_types) {
                 auxDiet.push(diet_types[diet].name);
@@ -96,7 +98,7 @@ async function getRecipeDB(name = undefined, idDetails = undefined) {
             if (steps.length === 0) {
                 steps = ['No existen pasos para esta receta.']
             }
-            return { id, image, name, diet_types, summary, score, healthy, steps }
+            return { id, image, name, diet_types, summary, price, score, healthy, steps }
         })
         return recetas;
     }
@@ -105,6 +107,7 @@ async function getRecipeDB(name = undefined, idDetails = undefined) {
 async function getAll(name, idDetails) {
     let dataAPI;
     let dataDB;
+    console.log(name, idDetails)
     if (PRUEBAS_LOCALES) {
         dataAPI = undefined;
         dataDB = await getRecipeDB(name, idDetails);
@@ -138,8 +141,8 @@ router.get('/:input', async function (req, res) {
                     .status(200);
             } catch (err) {
                 res
+                    .json(res.body)
                     .status(404)
-                    .send('Entró al catch. Error: ', err)
             }
             break;
         case ('types'):
@@ -177,7 +180,7 @@ router.get('/recipes/:id', async function (req, res) {
 
 router.post('/recipe', async function (req, res) {
     try {
-        const { name, image, summary, score, healthy, steps, idDietType } = req.body;
+        const { name, image, summary, score, healthy, price, steps, idDietType } = req.body;
         // console.log('-----------------idDietType:', idDietType)
         const recipe = await Recipe.create({
             name,
@@ -186,6 +189,7 @@ router.post('/recipe', async function (req, res) {
             score,
             healthy,
             steps,
+            price,
             idDietType, // [5,6,7]
         })
 

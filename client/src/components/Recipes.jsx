@@ -21,7 +21,7 @@ const BlockRecipe = styled.div`
   border: 1.2rem solid;
   border-color: ${colorC};
   border-radius: 15px;
-  &:hover{
+  &:hover {
     transition: all 0.2s ease-in-out;
     border-radius: 0 solid;
     border-color: ${colorD};
@@ -29,9 +29,8 @@ const BlockRecipe = styled.div`
   }
 `;
 
-
 const Button = styled.a`
-  display:inline-block;
+  display: inline-block;
   /* flex-direction:rows; */
   background: ${colorD};
   background-image: -webkit-linear-gradient(top, ${colorD}, ${colorC});
@@ -61,10 +60,10 @@ const Button = styled.a`
 function Recipes() {
   // const error = useSelector((state) => state.error);
   // const error_message = useSelector((state) => state.error_message);
-  const [actualPage, setActualPage] = useState(0);
-  const recipesPerPage = 9;
   // const lastRecipe = actualPage * recipesPerPage;
   // const firstRecipe = lastRecipe - recipesPerPage;
+  const [actualPage, setActualPage] = useState(0);
+  const recipesPerPage = 9;
   const loading = useSelector((state) => state.loading);
   const search = useSelector((state) => state.search);
   const recipes = useSelector((state) =>
@@ -79,11 +78,12 @@ function Recipes() {
 
   const dishOrder = useSelector((state) => state.dishOrder);
   const orderAz = useSelector((state) => state.orderAz);
+  // const orderHealth = useSelector((state) => state.orderHealth);
   const dishTypes = useSelector((state) =>
     state.dishtypes.find((x) => x.id === parseInt(dishOrder))
   );
 
-  const recipesFiltered = recipes
+  let recipesFiltered = recipes
     .filter((recipe) =>
       parseInt(dishOrder) === 0
         ? recipe
@@ -92,7 +92,6 @@ function Recipes() {
             (x) => x.toLocaleLowerCase() === dishTypes.name.toLocaleLowerCase()
           )
     )
-    .sort(sortHealth)
     .sort(sortDishes);
 
   const totalPages = Math.ceil(recipesFiltered.length / recipesPerPage);
@@ -106,25 +105,30 @@ function Recipes() {
         recipesPaged[i].push(recipesFiltered[i * recipesPerPage + j]);
       }
     }
-  }
+  } 
 
   function takeToPage(e, index) {
     e.preventDefault();
     setActualPage(parseInt(index));
   }
 
-  function sortHealth(a, b) {
-    let valA = parseInt((a.healthy || a.healthScore));
-    let valB = parseInt((b.healthy || b.healthScore));
-    if (valA > valB) return orderAz === "asc" ? 1 : -1;
-    if (valA < valB) return orderAz === "asc" ? -1 : 1;
-    return 0;
-  }
+
   function sortDishes(a, b) {
-    let valA = (a.title || a.name).toLocaleLowerCase();
-    let valB = (b.title || b.name).toLocaleLowerCase();
-    if (valA > valB) return orderAz === "asc" ? 1 : -1;
-    if (valA < valB) return orderAz === "asc" ? -1 : 1;
+    if (orderAz === "asc" || orderAz === "desc") {
+      console.log('entre a asc y desc con orderAz:', orderAz)
+      let valA = (a.title || a.name).toLocaleLowerCase();
+      let valB = (b.title || b.name).toLocaleLowerCase();
+      if (valA > valB) return orderAz === "asc" ? 1 : -1;
+      if (valA < valB) return orderAz === "asc" ? -1 : 1;
+      return 0;
+    } else if (orderAz === "morehealth" || orderAz === "lesshealth") {
+      console.log('entre a more y less health con orderAz:', orderAz)
+      let valA = parseInt(a.healthy || a.healthScore);
+      let valB = parseInt(b.healthy || b.healthScore);
+      if (valA > valB) return orderAz === "morehealth" ? -1 : 1;
+      if (valA < valB) return orderAz === "morehealth" ? 1 : -1;
+      return 0;
+    }
     return 0;
   }
 
@@ -135,7 +139,6 @@ function Recipes() {
       </Layout>
     );
   }
-  console.log("-------------recipesPaged", recipesPaged);
   if (recipesPaged.length > 0) {
     return (
       <Layout>
